@@ -1,4 +1,5 @@
-package com.blog.webservice.controller;
+package com.h2organise.web.controller;
+
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,11 @@ public class DashboardController {
         }
 
         model.addAttribute("username", username);
+
+        model.addAttribute("totalResources", 3);
+        model.addAttribute("criticalZones", 1);
+        model.addAttribute("openMaintenance", 2);
+        model.addAttribute("pendingRequests", 1);
 
         return "dashboard";
     }

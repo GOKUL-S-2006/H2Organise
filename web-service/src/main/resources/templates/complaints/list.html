@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Complaints - H2Organise</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 230px;
+            background-color: #1f4e79;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            padding-left: 10px;
+        }
+
+        .logo span {
+            font-weight: normal;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            color: #b8cce0;
+            margin: 20px 10px 8px;
+            text-transform: uppercase;
+        }
+
+        .menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 11px 10px;
+            border-radius: 5px;
+            margin-bottom: 4px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background-color: #163a5c;
+        }
+
+        .main {
+            flex: 1;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ddd;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 210px;
+            border: 1px solid #ddd;
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .card p {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            color: #1f4e79;
+        }
+
+        .section {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f3f5;
+            color: #444;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .high {
+            color: #c62828;
+        }
+
+        .pending {
+            color: #e67e22;
+        }
+
+        .registered {
+            color: #2980b9;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 10px 16px;
+            background-color: #1f4e79;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .back:hover {
+            background-color: #163a5c;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            H2<span>Organise</span>
+        </div>
+
+        <div class="menu-title">Main</div>
+
+        <div class="menu">
+            <a href="/dashboard">🏠 Dashboard</a>
+            <a href="/zones/1/status">💧 Zone Status</a>
+            <a href="/resources">🌊 Resources</a>
+            <a href="/distribution">🚰 Distribution</a>
+            <a href="/quality">🧪 Water Quality</a>
+            <a href="/maintenance">🔧 Maintenance</a>
+            <a href="/complaints" class="active">📋 Complaints</a>
+        </div>
+
+        <div class="menu-title">Portals</div>
+
+        <div class="menu">
+            <a href="/citizen/dashboard">👤 Citizen Portal</a>
+            <a href="/admin/dashboard">⚙️ Admin Portal</a>
+        </div>
+
+        <div class="menu-title">Account</div>
+
+        <div class="menu">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="navbar">
+            Complaints & Supply Requests
+        </div>
+
+        <div class="content">
+
+            <h2>Complaints & Supply Requests</h2>
+
+            <p class="subtitle">
+                Manage citizen complaints and water supply requests.
+            </p>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Complaints</h3>
+                    <p th:text="${complaints.size()}">1</p>
+                </div>
+
+                <div class="card">
+                    <h3>Supply Requests</h3>
+                    <p th:text="${requests.size()}">1</p>
+                </div>
+
+            </div>
+
+            <div class="section">
+
+                <h3>Complaints</h3>
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Location</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="complaint : ${complaints}">
+
+                        <td th:text="${complaint.id}">
+                            101
+                        </td>
+
+                        <td th:text="${complaint.type}">
+                            LEAKAGE
+                        </td>
+
+                        <td th:text="${complaint.title}">
+                            Pipe burst near market
+                        </td>
+
+                        <td th:text="${complaint.location}">
+                            Market Road
+                        </td>
+
+                        <td class="status high"
+                            th:text="${complaint.priority}">
+                            HIGH
+                        </td>
+
+                        <td class="status registered"
+                            th:text="${complaint.status}">
+                            REGISTERED
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="section">
+
+                <h3>Supply Requests</h3>
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Request Type</th>
+                        <th>Quantity (L)</th>
+                        <th>Zone</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="request : ${requests}">
+
+                        <td th:text="${request.id}">
+                            7
+                        </td>
+
+                        <td th:text="${request.type}">
+                            TANKER
+                        </td>
+
+                        <td th:text="${request.quantity}">
+                            5000
+                        </td>
+
+                        <td th:text="${request.zone}">
+                            North Zone
+                        </td>
+
+                        <td class="status pending"
+                            th:text="${request.status}">
+                            PENDING
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <a href="/dashboard" class="back">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

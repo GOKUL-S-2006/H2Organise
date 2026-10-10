@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resource Details - H2Organise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+        }
+
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 18px 30px;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #1976d2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>Resource Details</h2>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <div class="row">
+            <span class="label">Resource Name</span>
+            <span th:text="${resourceName}">Hemavathi Reservoir</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Type</span>
+            <span th:text="${resourceType}">RESERVOIR</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Zone</span>
+            <span th:text="${zoneName}">North Zone</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Capacity</span>
+            <span th:text="${capacity} + ' ML'">500 ML</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Current Level</span>
+            <span th:text="${level} + '%'">22%</span>
+        </div>
+
+        <div class="row">
+            <span class="label">Status</span>
+            <span th:text="${status}">LOW</span>
+        </div>
+    </div>
+
+    <a class="back" href="/resources">← Back to Resources</a>
+
+</div>
+
+</body>
+</html>

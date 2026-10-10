@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Management</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f7fa;
+        }
+
+        .navbar {
+            background-color: #1f4e79;
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #eef2f6;
+        }
+
+        .role {
+            font-weight: bold;
+            color: #1f4e79;
+        }
+
+        .active {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 18px;
+            background-color: #1f4e79;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    H2Organise - Admin Portal
+</div>
+
+<div class="container">
+
+    <h1>User Management</h1>
+
+    <div class="section">
+
+        <h2>Registered Users</h2>
+
+        <table>
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Zone</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr>
+                <td>1</td>
+                <td>Ravi</td>
+                <td class="role">ENGINEER</td>
+                <td>North Zone</td>
+                <td class="active">ACTIVE</td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>Meena</td>
+                <td class="role">CITIZEN</td>
+                <td>North Zone</td>
+                <td class="active">ACTIVE</td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td>Admin</td>
+                <td class="role">ADMIN</td>
+                <td>All Zones</td>
+                <td class="active">ACTIVE</td>
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <a href="/admin/dashboard" class="button">
+        Back to Admin Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>

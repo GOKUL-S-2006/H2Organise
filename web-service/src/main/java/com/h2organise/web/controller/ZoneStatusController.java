@@ -1,4 +1,4 @@
-package com.blog.webservice.controller;
+package com.h2organise.web.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;

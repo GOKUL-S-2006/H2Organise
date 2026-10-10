@@ -1,149 +1,386 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Resources</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>H2Organise | Resources</title>
 
     <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f5f7fa;
+            background: #f4f8fb;
+            color: #1f2937;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 240px;
+            background: #0f3d56;
+            color: white;
+            padding: 25px 18px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 35px;
+        }
+
+        .logo span {
+            color: #5dd6c0;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            color: #9fb8c5;
+            margin: 20px 12px 10px;
+            text-transform: uppercase;
+        }
+
+        .menu a {
+            display: block;
+            text-decoration: none;
+            color: #dcebf1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1c5874;
+            color: white;
+        }
+
+        /* MAIN */
+
+        .main {
+            flex: 1;
         }
 
         .navbar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 25px;
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .navbar h2 {
             font-size: 20px;
         }
 
-        .container {
-            width: 90%;
-            margin: 30px auto;
+        .user {
+            font-size: 14px;
+            color: #475569;
         }
 
-        h1 {
-            color: #2c3e50;
+        .content {
+            padding: 30px;
         }
 
         .top-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .top-section h1 {
+            font-size: 28px;
+        }
+
+        .top-section p {
+            color: #64748b;
+            margin-top: 6px;
+            font-size: 14px;
         }
 
         .button {
-            background-color: #3498db;
+            background: #0f3d56;
             color: white;
-            padding: 10px 15px;
+            padding: 11px 18px;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            background: #1c5874;
+        }
+
+        /* TABLE */
+
+        .table-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background-color: white;
         }
 
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
+        th,
+        td {
+            padding: 14px 16px;
             text-align: left;
+            border-bottom: 1px solid #eef2f5;
+            font-size: 14px;
         }
 
         th {
-            background-color: #ecf0f1;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
         }
 
         .low {
-            color: #c0392b;
+            color: #dc2626;
             font-weight: bold;
         }
 
         .normal {
-            color: #27ae60;
+            color: #15946b;
             font-weight: bold;
         }
 
         .view-button {
-            color: #2980b9;
+            color: #0f5965;
             text-decoration: none;
+            font-weight: bold;
         }
+
+        .view-button:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                padding: 20px;
+                overflow-x: auto;
+            }
+
+            .table-container {
+                min-width: 850px;
+            }
+        }
+
     </style>
+
 </head>
 
 <body>
 
-<div class="navbar">
-    H2Organise
-</div>
+<div class="layout">
 
-<div class="container">
+    <!-- SIDEBAR -->
 
-    <div class="top-section">
-        <h1>Water Resources</h1>
+    <aside class="sidebar">
 
-        <a href="/resources/new" class="button">
-            Add Resource
-        </a>
-    </div>
+        <div class="logo">
+            H2<span>Organise</span>
+        </div>
 
-    <table>
+        <div class="menu-title">Main</div>
 
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Zone</th>
-            <th>Capacity</th>
-            <th>Level (%)</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-        </thead>
+        <div class="menu">
 
-        <tbody>
+            <a href="/dashboard">
+                🏠 Dashboard
+            </a>
 
-        <tr th:each="resource : ${resources}">
+            <a href="/zones/1/status">
+                💧 Zone Status
+            </a>
 
-            <td th:text="${resource.id}"></td>
+            <a href="/resources" class="active">
+                🌊 Resources
+            </a>
 
-            <td th:text="${resource.name}"></td>
+            <a href="/distribution">
+                🚰 Distribution
+            </a>
 
-            <td th:text="${resource.type}"></td>
+            <a href="/quality">
+                🧪 Water Quality
+            </a>
 
-            <td th:text="${resource.zone}"></td>
+            <a href="/maintenance">
+                🔧 Maintenance
+            </a>
 
-            <td th:text="${resource.capacity} + ' ML'"></td>
+            <a href="/complaints">
+                📋 Complaints
+            </a>
 
-            <td th:text="${resource.level} + '%'"></td>
+        </div>
 
-            <td>
-                <span
-                        th:text="${resource.status}"
-                        th:class="${resource.status == 'LOW'} ? 'low' : 'normal'">
-                </span>
-            </td>
+        <div class="menu-title">Portals</div>
 
-            <td>
-                <a
-                        th:href="@{/resources/{id}(id=${resource.id})}"
-                        class="view-button">
-                    View
+        <div class="menu">
+
+            <a href="/citizen/dashboard">
+                👤 Citizen Portal
+            </a>
+
+            <a href="/admin/dashboard">
+                ⚙️ Admin Portal
+            </a>
+
+        </div>
+
+        <div class="menu-title">Account</div>
+
+        <div class="menu">
+
+            <a href="/logout">
+                🚪 Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <nav class="navbar">
+
+            <h2>Water Resources</h2>
+
+            <div class="user">
+                H2Organise
+            </div>
+
+        </nav>
+
+
+        <section class="content">
+
+            <div class="top-section">
+
+                <div>
+                    <h1>Water Resources</h1>
+
+                    <p>
+                        View and manage registered water sources.
+                    </p>
+                </div>
+
+                <a href="/resources/new" class="button">
+                    + Add Resource
                 </a>
-            </td>
 
-        </tr>
+            </div>
 
-        </tbody>
 
-    </table>
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Zone</th>
+                        <th>Capacity</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="resource : ${resources}">
+
+                        <td th:text="${resource.id}">
+                        </td>
+
+                        <td th:text="${resource.name}">
+                        </td>
+
+                        <td th:text="${resource.type}">
+                        </td>
+
+                        <td th:text="${resource.zone}">
+                        </td>
+
+                        <td th:text="${resource.capacity} + ' ML'">
+                        </td>
+
+                        <td th:text="${resource.level} + '%'">
+                        </td>
+
+                        <td>
+
+                            <span
+                                    th:text="${resource.status}"
+                                    th:class="${resource.status == 'LOW'} ? 'low' : 'normal'">
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <a
+                                    th:href="@{/resources/{id}(id=${resource.id})}"
+                                    class="view-button">
+                                View
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
 
 </div>
 
 </body>
+
 </html>

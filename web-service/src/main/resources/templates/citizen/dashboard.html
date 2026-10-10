@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Citizen Dashboard - H2Organise</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 230px;
+            background-color: #1f4e79;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            padding-left: 10px;
+        }
+
+        .logo span {
+            font-weight: normal;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            color: #b8cce0;
+            margin: 20px 10px 8px;
+            text-transform: uppercase;
+        }
+
+        .menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 11px 10px;
+            border-radius: 5px;
+            margin-bottom: 4px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background-color: #163a5c;
+        }
+
+        .main {
+            flex: 1;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ddd;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background-color: white;
+            width: 220px;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1f4e79;
+        }
+
+        .critical {
+            color: #dc2626;
+        }
+
+        .section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .links a {
+            display: inline-block;
+            margin-right: 15px;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #1f4e79;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .links a:hover {
+            background-color: #163a5c;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            H2<span>Organise</span>
+        </div>
+
+        <div class="menu-title">Citizen Portal</div>
+
+        <div class="menu">
+            <a href="/citizen/dashboard" class="active">🏠 Dashboard</a>
+            <a href="/my/zone-status">💧 My Zone Status</a>
+            <a href="/my/complaints">📋 My Complaints</a>
+            <a href="/my/requests">🚰 Supply Requests</a>
+        </div>
+
+        <div class="menu-title">Main</div>
+
+        <div class="menu">
+            <a href="/dashboard">📊 Main Dashboard</a>
+        </div>
+
+        <div class="menu-title">Account</div>
+
+        <div class="menu">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="navbar">
+            Citizen Dashboard
+        </div>
+
+        <div class="content">
+
+            <h2>Welcome, Citizen</h2>
+
+            <p class="subtitle">
+                View your zone status, complaints, and water supply requests.
+            </p>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>My Complaints</h3>
+                    <div class="value">1</div>
+                </div>
+
+                <div class="card">
+                    <h3>Supply Requests</h3>
+                    <div class="value">1</div>
+                </div>
+
+                <div class="card">
+                    <h3>My Zone</h3>
+                    <div class="value">North Zone</div>
+                </div>
+
+            </div>
+
+            <div class="section">
+
+                <h3>Current Zone Status</h3>
+
+                <p>
+                    Zone:
+                    <strong>North Zone</strong>
+                </p>
+
+                <p>
+                    Current Level:
+                    <strong class="critical">22%</strong>
+                </p>
+
+                <p>
+                    Status:
+                    <strong class="critical">CRITICAL</strong>
+                </p>
+
+                <p>
+                    Next Supply:
+                    <strong>18:00 - 20:00</strong>
+                </p>
+
+            </div>
+
+            <div class="section">
+
+                <h3>Quick Access</h3>
+
+                <div class="links">
+                    <a href="/my/zone-status">View Zone Status</a>
+                    <a href="/my/complaints">View Complaints</a>
+                    <a href="/my/requests">View Supply Requests</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

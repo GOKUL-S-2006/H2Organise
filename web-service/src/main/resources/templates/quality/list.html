@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Water Quality - H2Organise</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 230px;
+            background-color: #1f4e79;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 35px;
+            padding-left: 10px;
+        }
+
+        .logo span {
+            font-weight: normal;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            color: #b8cce0;
+            margin: 20px 10px 8px;
+            text-transform: uppercase;
+        }
+
+        .menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 11px 10px;
+            border-radius: 5px;
+            margin-bottom: 4px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background-color: #163a5c;
+        }
+
+        .main {
+            flex: 1;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ddd;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .zone {
+            margin-bottom: 25px;
+            color: #444;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            width: 220px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1f4e79;
+        }
+
+        .status {
+            color: #15803d;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .inspection {
+            margin-top: 25px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .inspection h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .inspection strong {
+            color: #15803d;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            H2<span>Organise</span>
+        </div>
+
+        <div class="menu-title">Main</div>
+
+        <div class="menu">
+            <a href="/dashboard">🏠 Dashboard</a>
+            <a href="/zones/1/status">💧 Zone Status</a>
+            <a href="/resources">🌊 Resources</a>
+            <a href="/distribution">🚰 Distribution</a>
+            <a href="/quality" class="active">🧪 Water Quality</a>
+            <a href="/maintenance">🔧 Maintenance</a>
+            <a href="/complaints">📋 Complaints</a>
+        </div>
+
+        <div class="menu-title">Portals</div>
+
+        <div class="menu">
+            <a href="/citizen/dashboard">👤 Citizen Portal</a>
+            <a href="/admin/dashboard">⚙️ Admin Portal</a>
+        </div>
+
+        <div class="menu-title">Account</div>
+
+        <div class="menu">
+            <a href="/logout">🚪 Logout</a>
+        </div>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="navbar">
+            Water Quality
+        </div>
+
+        <div class="content">
+
+            <h2>Water Quality Overview</h2>
+
+            <p class="subtitle">
+                Monitor water quality parameters and inspection results.
+            </p>
+
+            <div class="zone">
+                Zone:
+                <strong th:text="${zoneName}">North Zone</strong>
+            </div>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>pH Level</h3>
+
+                    <div class="value" th:text="${ph}">
+                        7.2
+                    </div>
+
+                    <p>
+                        Acceptable: 6.5 - 8.5
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Chlorine</h3>
+
+                    <div class="value">
+                        <span th:text="${chlorine}">
+                            0.6
+                        </span> mg/L
+                    </div>
+
+                    <p>
+                        Acceptable: 0.2 - 1.0 mg/L
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Quality Status</h3>
+
+                    <div class="status"
+                         th:text="${qualityStatus}">
+                        COMPLIANT
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Last Test</h3>
+
+                    <div class="value"
+                         th:text="${lastTest}">
+                        10 Oct 2026
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="inspection">
+
+                <h3>Latest Inspection</h3>
+
+                <p>
+                    Inspection Status:
+                    <strong th:text="${inspectionStatus}">
+                        PASSED
+                    </strong>
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

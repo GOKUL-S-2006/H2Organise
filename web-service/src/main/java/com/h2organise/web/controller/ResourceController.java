@@ -50,6 +50,10 @@ public class ResourceController {
 
         return "resources/list";
     }
+    @GetMapping("/resources/new")
+    public String newResource() {
+        return "resources/form";
+    }
 
     @GetMapping("/resources/{id}")
     public String resourceDetails(@PathVariable Long id, Model model) {

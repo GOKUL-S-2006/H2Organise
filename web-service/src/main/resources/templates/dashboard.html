@@ -8,6 +8,7 @@
     <title>H2Organise | Dashboard</title>
 
     <style>
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -222,7 +223,10 @@
             background: #d5eeee;
         }
 
+        /* RESPONSIVE */
+
         @media (max-width: 1000px) {
+
             .cards {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -233,6 +237,7 @@
         }
 
         @media (max-width: 700px) {
+
             .sidebar {
                 width: 190px;
             }
@@ -241,7 +246,9 @@
                 padding: 20px;
             }
         }
+
     </style>
+
 </head>
 
 <body>
@@ -289,6 +296,24 @@
             </a>
 
         </div>
+
+        <!-- PORTALS -->
+
+        <div class="menu-title">Portals</div>
+
+        <div class="menu">
+
+            <a href="/citizen/dashboard">
+                👤 Citizen Portal
+            </a>
+
+            <a href="/admin/dashboard">
+                ⚙️ Admin Portal
+            </a>
+
+        </div>
+
+        <!-- ACCOUNT -->
 
         <div class="menu-title">Account</div>
 

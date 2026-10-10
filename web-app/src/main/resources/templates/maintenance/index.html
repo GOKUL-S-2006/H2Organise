@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Maintenance</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Maintenance</h1>
+
+        <h2>Faults</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Asset</th>
+                <th>Zone</th>
+                <th>Description</th>
+                <th>Severity</th>
+                <th>Reported</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr th:each="f : ${faults}">
+                <td th:text="${f.id}"></td>
+                <td th:text="${f.assetType} + ' ' + ${f.assetId}"></td>
+                <td th:text="${f.zoneId}"></td>
+                <td th:text="${f.description}"></td>
+                <td th:text="${f.severity}" th:class="${f.severity}"></td>
+                <td th:text="${f.reportedAt}"></td>
+                <td th:text="${f.status}" th:class="${f.status}"></td>
+                <td>
+                    <th:block th:if="${f.status != 'RESOLVED'}">
+                        <form th:action="@{/maintenance/faults/{id}/status(id=${f.id})}" method="post" class="inline">
+                            <button name="status" value="IN_PROGRESS" th:if="${f.status == 'OPEN'}">Start</button>
+                        </form>
+                        <form th:action="@{/maintenance/faults/{id}/resolve(id=${f.id})}" method="post" class="inline">
+                            <button type="submit">Resolve</button>
+                        </form>
+                    </th:block>
+                </td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>Report fault</h3>
+            <form action="/maintenance/faults" method="post">
+                <select name="assetType">
+                    <option>PUMP</option>
+                    <option>PLANT</option>
+                    <option>PIPELINE</option>
+                </select>
+                <input type="number" name="assetId" placeholder="asset id" required>
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <select name="severity">
+                    <option>LOW</option>
+                    <option>MEDIUM</option>
+                    <option>HIGH</option>
+                    <option>CRITICAL</option>
+                </select>
+                <input type="text" name="description" placeholder="what is wrong">
+                <input type="hidden" name="reportedBy" th:value="${user.fullName}">
+                <button type="submit">Report</button>
+            </form>
+        </div>
+
+        <h2>Tasks</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Asset</th>
+                <th>Fault</th>
+                <th>Assigned to</th>
+                <th>Scheduled</th>
+                <th>Completed</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr th:each="t : ${tasks}">
+                <td th:text="${t.id}"></td>
+                <td th:text="${t.title}"></td>
+                <td th:text="${t.taskType}"></td>
+                <td th:text="${t.assetType} + ' ' + ${t.assetId}"></td>
+                <td th:text="${t.faultId}"></td>
+                <td th:text="${t.assignedTo}"></td>
+                <td th:text="${t.scheduledDate}"></td>
+                <td th:text="${t.completedDate}"></td>
+                <td th:text="${t.status}" th:class="${t.status}"></td>
+                <td>
+                    <form th:if="${t.status != 'COMPLETED'}" th:action="@{/maintenance/tasks/{id}/complete(id=${t.id})}"
+                          method="post">
+                        <button type="submit">Done</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>New task</h3>
+            <form action="/maintenance/tasks" method="post">
+                <input type="text" name="title" placeholder="title" required>
+                <select name="taskType">
+                    <option>REPAIR</option>
+                    <option>PREVENTIVE</option>
+                    <option>INSPECTION</option>
+                </select>
+                <select name="assetType">
+                    <option>PUMP</option>
+                    <option>PLANT</option>
+                    <option>PIPELINE</option>
+                </select>
+                <input type="number" name="assetId" placeholder="asset id" required>
+                <input type="number" name="faultId" placeholder="fault id (optional)">
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="text" name="assignedTo" placeholder="assigned to">
+                <input type="date" name="scheduledDate">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+
+        <h2>Pumps</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Zone</th>
+                <th>Source</th>
+                <th>Capacity (L/h)</th>
+                <th>Installed</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="p : ${pumps}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.name}"></td>
+                <td th:text="${p.zoneId}"></td>
+                <td th:text="${p.sourceId}"></td>
+                <td th:text="${p.capacityLph}"></td>
+                <td th:text="${p.installedDate}"></td>
+                <td>
+                    <span th:text="${p.status}" th:class="${p.status}"></span>
+                    <form th:action="@{/maintenance/pumps/{id}/status(id=${p.id})}" method="post" class="inline">
+                        <select name="status">
+                            <option>WORKING</option>
+                            <option>FAULTY</option>
+                            <option>UNDER_REPAIR</option>
+                        </select>
+                        <button type="submit">Set</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>Add pump</h3>
+            <form action="/maintenance/pumps" method="post">
+                <input type="text" name="name" placeholder="name" required>
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="number" name="sourceId" placeholder="source id">
+                <input type="number" name="capacityLph" placeholder="L/h">
+                <input type="date" name="installedDate">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+
+        <h2>Treatment plants</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Zone</th>
+                <th>Capacity (MLD)</th>
+                <th>Last serviced</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="p : ${plants}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.name}"></td>
+                <td th:text="${p.zoneId}"></td>
+                <td th:text="${p.capacityMld}"></td>
+                <td th:text="${p.lastServicedDate}"></td>
+                <td th:text="${p.status}" th:class="${p.status}"></td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>Add plant</h3>
+            <form action="/maintenance/plants" method="post">
+                <input type="text" name="name" placeholder="name" required>
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="number" name="capacityMld" placeholder="MLD">
+                <input type="date" name="lastServicedDate">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

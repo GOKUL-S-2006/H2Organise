@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Distribution</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Distribution</h1>
+
+        <h2>Zones</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Population</th>
+                <th>Households</th>
+                <th>Main source</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="z : ${zones}">
+                <td th:text="${z.id}"></td>
+                <td><a th:href="@{/zones/{id}/status(id=${z.id})}" th:text="${z.name}"></a></td>
+                <td th:text="${z.population}"></td>
+                <td th:text="${z.households}"></td>
+                <td th:text="${z.primarySourceId}"></td>
+                <td th:text="${z.status}" th:class="${z.status}"></td>
+            </tr>
+        </table>
+        <div class="box" th:if="${user.role == 'ADMIN'}">
+            <h3>Add zone</h3>
+            <form action="/distribution/zones" method="post">
+                <input type="text" name="name" placeholder="name" required>
+                <input type="text" name="description" placeholder="description">
+                <input type="number" name="population" placeholder="population">
+                <input type="number" name="households" placeholder="households">
+                <input type="number" name="primarySourceId" placeholder="source id">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+
+        <h2>Schedules</h2>
+        <table>
+            <tr>
+                <th>Zone</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Planned (ML)</th>
+                <th>Remarks</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="s : ${schedules}">
+                <td th:text="${s.zoneName}"></td>
+                <td th:text="${s.supplyDate}"></td>
+                <td th:text="${s.startTime} + ' - ' + ${s.endTime}"></td>
+                <td th:text="${s.plannedVolume}"></td>
+                <td th:text="${s.remarks}"></td>
+                <td>
+                    <form th:action="@{/distribution/schedules/{id}/status(id=${s.id})}" method="post">
+                        <select name="status">
+                            <option th:each="st : ${ {'PLANNED','ACTIVE','COMPLETED','REDUCED','CANCELLED'} }"
+                                    th:value="${st}" th:text="${st}" th:selected="${st == s.status}"></option>
+                        </select>
+                        <button type="submit">Save</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>Add schedule</h3>
+            <form action="/distribution/schedules" method="post">
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="date" name="supplyDate" required>
+                <input type="time" name="startTime" required>
+                <input type="time" name="endTime" required>
+                <input type="number" step="0.1" name="plannedVolume" placeholder="ML" required>
+                <input type="text" name="remarks" placeholder="remarks">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+
+        <h2>Pipelines</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Zone</th>
+                <th>Length (km)</th>
+                <th>Diameter (mm)</th>
+                <th>Material</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="p : ${pipelines}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.name}"></td>
+                <td th:text="${p.zoneName}"></td>
+                <td th:text="${p.lengthKm}"></td>
+                <td th:text="${p.diameterMm}"></td>
+                <td th:text="${p.material}"></td>
+                <td>
+                    <span th:text="${p.status}" th:class="${p.status}"></span>
+                    <form th:action="@{/distribution/pipelines/{id}/status(id=${p.id})}" method="post" class="inline">
+                        <select name="status">
+                            <option>ACTIVE</option>
+                            <option>LEAKING</option>
+                            <option>CLOSED</option>
+                        </select>
+                        <button type="submit">Set</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>Add pipeline</h3>
+            <form action="/distribution/pipelines" method="post">
+                <input type="text" name="name" placeholder="name" required>
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="number" name="sourceId" placeholder="source id">
+                <input type="number" step="0.1" name="lengthKm" placeholder="km">
+                <input type="number" name="diameterMm" placeholder="mm">
+                <input type="text" name="material" placeholder="material">
+                <input type="date" name="installedDate">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+
+        <h2>Water usage</h2>
+        <p>
+            Totals:
+            <span th:each="u : ${summary}">
+                <b th:text="${u.category}"></b> <span th:text="${u.totalVolume}"></span> ML &nbsp;
+            </span>
+        </p>
+        <table>
+            <tr>
+                <th>Zone</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Volume (ML)</th>
+            </tr>
+            <tr th:each="c : ${consumption}">
+                <td th:text="${c.zoneId}"></td>
+                <td th:text="${c.recordDate}"></td>
+                <td th:text="${c.category}"></td>
+                <td th:text="${c.volumeConsumed}"></td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>Add usage record</h3>
+            <form action="/distribution/consumption" method="post">
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="date" name="recordDate" required>
+                <select name="category">
+                    <option>DOMESTIC</option>
+                    <option>AGRICULTURAL</option>
+                    <option>INDUSTRIAL</option>
+                    <option>INSTITUTIONAL</option>
+                </select>
+                <input type="number" step="0.1" name="volumeConsumed" placeholder="ML" required>
+                <button type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

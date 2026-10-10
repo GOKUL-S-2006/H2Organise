@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Water Quality</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Water Quality</h1>
+
+        <div class="cards">
+            <div class="card"><div class="num" th:text="${compliance.totalTests}">0</div>tests done</div>
+            <div class="card"><div class="num" th:text="${compliance.nonCompliantTests}">0</div>failed</div>
+            <div class="card"><div class="num" th:text="${compliance.compliancePercent} + '%'">0</div>compliant</div>
+            <div class="card"><div class="num" th:text="${#lists.size(due)}">0</div>inspections due (30 days)</div>
+        </div>
+
+        <h2>Standards</h2>
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>Allowed range</th>
+            </tr>
+            <tr th:each="s : ${standards}">
+                <td th:text="${s.parameter}"></td>
+                <td>
+                    <form action="/quality/standards" method="post" th:if="${user.role != 'OPERATOR'}">
+                        <input type="hidden" name="parameter" th:value="${s.parameter}">
+                        <input type="number" step="0.01" name="minValue" th:value="${s.minValue}" size="5">
+                        to
+                        <input type="number" step="0.01" name="maxValue" th:value="${s.maxValue}" size="5">
+                        <button type="submit">Update</button>
+                    </form>
+                    <span th:if="${user.role == 'OPERATOR'}" th:text="${s.minValue} + ' to ' + ${s.maxValue}"></span>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Test results</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Zone</th>
+                <th>Source</th>
+                <th>pH</th>
+                <th>Turbidity</th>
+                <th>Chlorine</th>
+                <th>TDS</th>
+                <th>Bacteria</th>
+                <th>Result</th>
+                <th>By</th>
+                <th></th>
+            </tr>
+            <tr th:each="t : ${tests}">
+                <td th:text="${t.testDate}"></td>
+                <td th:text="${t.zoneId}"></td>
+                <td th:text="${t.sourceId}"></td>
+                <td th:text="${t.ph}"></td>
+                <td th:text="${t.turbidity}"></td>
+                <td th:text="${t.chlorine}"></td>
+                <td th:text="${t.tds}"></td>
+                <td th:text="${t.bacteriaPresent} ? 'yes' : 'no'"></td>
+                <td th:text="${t.complianceStatus}" th:class="${t.complianceStatus}"></td>
+                <td th:text="${t.testedBy}"></td>
+                <td>
+                    <form th:action="@{/quality/tests/{id}/delete(id=${t.id})}" method="post"
+                          onsubmit="return confirm('Delete test?')">
+                        <button type="submit">X</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>New test</h3>
+            <form action="/quality/tests" method="post">
+                <p><label>Zone</label>
+                    <select name="zoneId">
+                        <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                    </select>
+                </p>
+                <p><label>Source id</label><input type="number" name="sourceId"></p>
+                <p><label>Date</label><input type="date" name="testDate" required></p>
+                <p><label>pH</label><input type="number" step="0.01" name="ph"></p>
+                <p><label>Turbidity (NTU)</label><input type="number" step="0.01" name="turbidity"></p>
+                <p><label>Chlorine (mg/L)</label><input type="number" step="0.01" name="chlorine"></p>
+                <p><label>TDS (mg/L)</label><input type="number" step="0.1" name="tds"></p>
+                <p><label>Bacteria found</label><input type="checkbox" name="bacteriaPresent"></p>
+                <p><label>Remarks</label><input type="text" name="remarks"></p>
+                <p><button type="submit">Save test</button></p>
+            </form>
+        </div>
+
+        <h2>Inspections</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Zone</th>
+                <th>Source</th>
+                <th>Inspector</th>
+                <th>Result</th>
+                <th>Remarks</th>
+                <th>Next due</th>
+            </tr>
+            <tr th:each="i : ${inspections}">
+                <td th:text="${i.inspectionDate}"></td>
+                <td th:text="${i.zoneId}"></td>
+                <td th:text="${i.sourceId}"></td>
+                <td th:text="${i.inspectorName}"></td>
+                <td th:text="${i.result}" th:class="${i.result}"></td>
+                <td th:text="${i.remarks}"></td>
+                <td th:text="${i.nextDueDate}"></td>
+            </tr>
+        </table>
+        <div class="box">
+            <h3>New inspection</h3>
+            <form action="/quality/inspections" method="post">
+                <select name="zoneId">
+                    <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"></option>
+                </select>
+                <input type="number" name="sourceId" placeholder="source id">
+                <input type="date" name="inspectionDate" required>
+                <input type="text" name="inspectorName" placeholder="inspector">
+                <select name="result">
+                    <option>PASSED</option>
+                    <option>FAILED</option>
+                    <option>ACTION_REQUIRED</option>
+                </select>
+                <input type="text" name="remarks" placeholder="remarks">
+                next due <input type="date" name="nextDueDate">
+                <button type="submit">Save</button>
+            </form>
+        </div>
+
+        <h2>Due in next 30 days</h2>
+        <p th:if="${#lists.isEmpty(due)}">Nothing due.</p>
+        <ul>
+            <li th:each="d : ${due}">
+                Zone <span th:text="${d.zoneId}"></span>, source <span th:text="${d.sourceId}"></span>
+                - due <b th:text="${d.nextDueDate}"></b>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

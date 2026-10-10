@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="navbar" class="navbar">
+    <a href="/dashboard" class="logo">H2Organise</a>
+    <span class="right" th:if="${user != null}">
+        <span th:text="${user.fullName}">name</span>
+        (<span th:text="${user.role}">role</span>) |
+        <a href="/logout">Logout</a>
+    </span>
+</div>
+</body>
+</html>

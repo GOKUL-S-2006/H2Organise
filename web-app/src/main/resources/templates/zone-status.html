@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Zone Status</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content" th:with="zoneId=${v.zone.id}">
+        <h1>
+            <span th:text="${v.zone.name}">Zone</span> -
+            <span th:text="${v.status}" th:class="${v.status}">STATUS</span>
+        </h1>
+        <p th:text="${v.zone.description}"></p>
+        <p>Population: <span th:text="${v.zone.population}"></span>,
+            households: <span th:text="${v.zone.households}"></span></p>
+
+        <div class="box">
+            <h3>Water level</h3>
+            <th:block th:if="${v.lowestLevel != null}">
+                <div class="bar"><div class="fill" th:style="'width:' + ${v.lowestLevel} + '%'"></div></div>
+                <p>Lowest source is at <b th:text="${v.lowestLevel} + '%'"></b>,
+                    minimum allowed is <span th:text="${v.threshold} + '%'"></span></p>
+            </th:block>
+            <p th:if="${v.lowestLevel == null}">No level readings yet.</p>
+
+            <table>
+                <tr>
+                    <th>Source</th>
+                    <th>Type</th>
+                    <th>Capacity (ML)</th>
+                    <th>Current (ML)</th>
+                    <th>Level</th>
+                    <th>Reading time</th>
+                </tr>
+                <tr th:each="s : ${v.sources}">
+                    <td th:text="${s.name}"></td>
+                    <td th:text="${s.type}"></td>
+                    <td th:text="${s.totalCapacity}"></td>
+                    <td th:text="${s.currentVolume}"></td>
+                    <td th:text="${s.levelPercent != null} ? ${s.levelPercent} + '%' : '-'"></td>
+                    <td th:text="${s.readingTime}"></td>
+                </tr>
+            </table>
+        </div>
+
+        <h2>Open faults</h2>
+        <p th:if="${#lists.isEmpty(v.openFaults)}">No open faults.</p>
+        <table th:unless="${#lists.isEmpty(v.openFaults)}">
+            <tr>
+                <th>#</th>
+                <th>Asset</th>
+                <th>Description</th>
+                <th>Severity</th>
+                <th>Assign repair</th>
+            </tr>
+            <tr th:each="f : ${v.openFaults}">
+                <td th:text="${f.id}"></td>
+                <td th:text="${f.assetType} + ' ' + ${f.assetId}"></td>
+                <td th:text="${f.description}"></td>
+                <td th:text="${f.severity}" th:class="${f.severity}"></td>
+                <td>
+                    <form th:action="@{/zones/{id}/assign-repair(id=${zoneId})}" method="post">
+                        <input type="hidden" name="faultId" th:value="${f.id}">
+                        <input type="text" name="title" placeholder="task title" required>
+                        <input type="text" name="assignedTo" placeholder="engineer" size="10" required>
+                        <button type="submit">Assign</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Pending maintenance</h2>
+        <p th:if="${#lists.isEmpty(v.pendingTasks)}">Nothing pending.</p>
+        <table th:unless="${#lists.isEmpty(v.pendingTasks)}">
+            <tr>
+                <th>Task</th>
+                <th>Asset</th>
+                <th>Assigned to</th>
+                <th>Date</th>
+            </tr>
+            <tr th:each="t : ${v.pendingTasks}">
+                <td th:text="${t.title}"></td>
+                <td th:text="${t.assetType} + ' ' + ${t.assetId}"></td>
+                <td th:text="${t.assignedTo}"></td>
+                <td th:text="${t.scheduledDate}"></td>
+            </tr>
+        </table>
+
+        <h2>Supply schedule</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Planned (ML)</th>
+                <th>Status</th>
+                <th>Reduce to</th>
+            </tr>
+            <tr th:each="s : ${v.schedules}">
+                <td th:text="${s.supplyDate}"></td>
+                <td th:text="${s.startTime} + ' - ' + ${s.endTime}"></td>
+                <td th:text="${s.plannedVolume}"></td>
+                <td th:text="${s.status}" th:class="${s.status}"></td>
+                <td>
+                    <form th:if="${s.status == 'PLANNED' or s.status == 'ACTIVE'}"
+                          th:action="@{/zones/{id}/reduce(id=${zoneId})}" method="post">
+                        <input type="hidden" name="scheduleId" th:value="${s.id}">
+                        <input type="number" step="0.1" name="volume" size="5" required>
+                        <button type="submit">Reduce</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Water requests</h2>
+        <p th:if="${#lists.isEmpty(v.pendingRequests)}">No pending requests.</p>
+        <table th:unless="${#lists.isEmpty(v.pendingRequests)}">
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Litres</th>
+                <th>Needed on</th>
+                <th>Reason</th>
+                <th></th>
+            </tr>
+            <tr th:each="r : ${v.pendingRequests}">
+                <td th:text="${r.id}"></td>
+                <td th:text="${r.requestType}"></td>
+                <td th:text="${r.quantityLitres}"></td>
+                <td th:text="${r.requiredDate}"></td>
+                <td th:text="${r.reason}"></td>
+                <td>
+                    <form th:action="@{/zones/{id}/request-status(id=${zoneId})}" method="post" class="inline">
+                        <input type="hidden" name="requestId" th:value="${r.id}">
+                        <button name="status" value="SCHEDULED">Schedule</button>
+                        <button name="status" value="REJECTED">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+        <h2>New complaints</h2>
+        <p th:if="${#lists.isEmpty(v.newComplaints)}">No new complaints.</p>
+        <table th:unless="${#lists.isEmpty(v.newComplaints)}">
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Priority</th>
+                <th></th>
+            </tr>
+            <tr th:each="c : ${v.newComplaints}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.type}"></td>
+                <td th:text="${c.title}"></td>
+                <td th:text="${c.location}"></td>
+                <td th:text="${c.priority}" th:class="${c.priority}"></td>
+                <td>
+                    <form th:action="@{/zones/{id}/complaint-status(id=${zoneId})}" method="post">
+                        <input type="hidden" name="complaintId" th:value="${c.id}">
+                        <input type="text" name="assignedTo" placeholder="engineer" size="10" required>
+                        <button name="status" value="ASSIGNED">Assign</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Usage</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Volume (ML)</th>
+            </tr>
+            <tr th:each="c : ${v.consumption}">
+                <td th:text="${c.recordDate}"></td>
+                <td th:text="${c.category}"></td>
+                <td th:text="${c.volumeConsumed}"></td>
+            </tr>
+        </table>
+
+        <h2>Latest quality test</h2>
+        <p th:if="${v.latestTest == null}">No tests for this zone yet.</p>
+        <div class="box" th:if="${v.latestTest != null}">
+            <p>Date: <span th:text="${v.latestTest.testDate}"></span> by <span th:text="${v.latestTest.testedBy}"></span></p>
+            <p>pH <span th:text="${v.latestTest.ph}"></span>,
+                turbidity <span th:text="${v.latestTest.turbidity}"></span>,
+                chlorine <span th:text="${v.latestTest.chlorine}"></span>,
+                TDS <span th:text="${v.latestTest.tds}"></span></p>
+            <p>Result: <b th:text="${v.latestTest.complianceStatus}" th:class="${v.latestTest.complianceStatus}"></b></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

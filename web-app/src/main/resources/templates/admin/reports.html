@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Reports</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Reports</h1>
+
+        <div class="cards">
+            <div class="card"><div class="num" th:text="${sources}">0</div>water sources</div>
+            <div class="card"><div class="num" th:text="${#lists.size(lowSources)}">0</div>below threshold</div>
+            <div class="card"><div class="num" th:text="${#lists.size(zones)}">0</div>zones</div>
+            <div class="card"><div class="num" th:text="${compliance.compliancePercent} + '%'">0</div>quality compliant</div>
+        </div>
+
+        <h2>Zones</h2>
+        <table>
+            <tr>
+                <th>Zone</th>
+                <th>Population</th>
+                <th>Households</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="z : ${zones}">
+                <td th:text="${z.name}"></td>
+                <td th:text="${z.population}"></td>
+                <td th:text="${z.households}"></td>
+                <td th:text="${z.status}" th:class="${z.status}"></td>
+            </tr>
+        </table>
+
+        <h2>Usage by category</h2>
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Total (ML)</th>
+            </tr>
+            <tr th:each="u : ${usage}">
+                <td th:text="${u.category}"></td>
+                <td th:text="${u.totalVolume}"></td>
+            </tr>
+        </table>
+
+        <h2>Maintenance</h2>
+        <table>
+            <tr>
+                <th></th>
+                <th>Total</th>
+                <th>Open / pending</th>
+                <th>Resolved / done</th>
+            </tr>
+            <tr>
+                <td>Faults</td>
+                <td th:text="${#lists.size(faults)}"></td>
+                <td th:text="${#lists.size(faults.?[status != 'RESOLVED'])}"></td>
+                <td th:text="${#lists.size(faults.?[status == 'RESOLVED'])}"></td>
+            </tr>
+            <tr>
+                <td>Tasks</td>
+                <td th:text="${#lists.size(tasks)}"></td>
+                <td th:text="${#lists.size(tasks.?[status != 'COMPLETED'])}"></td>
+                <td th:text="${#lists.size(tasks.?[status == 'COMPLETED'])}"></td>
+            </tr>
+        </table>
+
+        <h2>Complaints and requests</h2>
+        <table>
+            <tr>
+                <th></th>
+                <th>Total</th>
+                <th>Still open</th>
+                <th>Closed</th>
+            </tr>
+            <tr>
+                <td>Complaints</td>
+                <td th:text="${#lists.size(complaints)}"></td>
+                <td th:text="${#lists.size(complaints.?[status != 'RESOLVED' and status != 'REJECTED'])}"></td>
+                <td th:text="${#lists.size(complaints.?[status == 'RESOLVED' or status == 'REJECTED'])}"></td>
+            </tr>
+            <tr>
+                <td>Water requests</td>
+                <td th:text="${#lists.size(requests)}"></td>
+                <td th:text="${#lists.size(requests.?[status == 'PENDING' or status == 'SCHEDULED'])}"></td>
+                <td th:text="${#lists.size(requests.?[status == 'FULFILLED' or status == 'REJECTED'])}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

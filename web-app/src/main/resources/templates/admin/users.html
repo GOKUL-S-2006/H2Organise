@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Users</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Users</h1>
+
+        <form action="/admin/users" method="get">
+            Role:
+            <select name="role">
+                <option value="">all</option>
+                <option th:each="r : ${ {'ADMIN','ENGINEER','OPERATOR','CITIZEN'} }"
+                        th:value="${r}" th:text="${r}" th:selected="${r == role}"></option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+        <br>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Zone</th>
+                <th>Active</th>
+                <th>Role</th>
+                <th></th>
+            </tr>
+            <tr th:each="u : ${users}">
+                <td th:text="${u.id}"></td>
+                <td th:text="${u.fullName}"></td>
+                <td th:text="${u.email}"></td>
+                <td th:text="${u.phone}"></td>
+                <td th:text="${u.zoneId}"></td>
+                <td th:text="${u.active} ? 'yes' : 'no'"></td>
+                <td>
+                    <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="post">
+                        <select name="role">
+                            <option th:each="r : ${ {'ADMIN','ENGINEER','OPERATOR','CITIZEN'} }"
+                                    th:value="${r}" th:text="${r}" th:selected="${r == u.role}"></option>
+                        </select>
+                        <button type="submit">Change</button>
+                    </form>
+                </td>
+                <td>
+                    <form th:if="${u.active}" th:action="@{/admin/users/{id}/deactivate(id=${u.id})}" method="post"
+                          onsubmit="return confirm('Deactivate this user?')">
+                        <button type="submit">Deactivate</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+        <div class="box">
+            <h3>Add staff account</h3>
+            <form action="/admin/users" method="post">
+                <input type="text" name="fullName" placeholder="full name" required>
+                <input type="email" name="email" placeholder="email" required>
+                <input type="password" name="password" placeholder="password (min 6)" required>
+                <input type="text" name="phone" placeholder="phone">
+                <select name="role">
+                    <option>ENGINEER</option>
+                    <option>OPERATOR</option>
+                    <option>ADMIN</option>
+                </select>
+                <select name="zoneId">
+                    <option value="">no zone</option>
+                    <option value="1">North</option>
+                    <option value="2">South</option>
+                    <option value="3">East</option>
+                    <option value="4">West</option>
+                </select>
+                <button type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Complaint history</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <a href="javascript:history.back()">&lt; back</a>
+        <h1>Complaint #<span th:text="${complaintId}"></span></h1>
+
+        <table>
+            <tr>
+                <th>When</th>
+                <th>Status</th>
+                <th>Comment</th>
+                <th>By</th>
+            </tr>
+            <tr th:each="u : ${updates}">
+                <td th:text="${u.updatedAt}"></td>
+                <td th:text="${u.status}" th:class="${u.status}"></td>
+                <td th:text="${u.comment}"></td>
+                <td th:text="${u.updatedBy}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

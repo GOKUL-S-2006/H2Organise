@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Source</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <a href="/resources">&lt; back</a>
+        <h1 th:text="${source.name}">Source</h1>
+
+        <div class="box">
+            <p>Type: <span th:text="${source.type}"></span></p>
+            <p>Location: <span th:text="${source.location}"></span></p>
+            <p>Zone: <span th:text="${source.zoneId}"></span></p>
+            <p>Status: <span th:text="${source.status}"></span></p>
+            <p>Total capacity: <span th:text="${capacity.totalCapacity}"></span> ML</p>
+            <p>Current volume: <span th:text="${capacity.currentVolume}"></span> ML</p>
+            <p>Available capacity: <span th:text="${capacity.availableCapacity}"></span> ML</p>
+            <p>Level: <b th:text="${capacity.levelPercent} + '%'"></b>
+                (min <span th:text="${capacity.minThresholdPercent}"></span>%)</p>
+            <div class="bar" th:if="${capacity.levelPercent != null}">
+                <div class="fill" th:style="'width:' + ${capacity.levelPercent} + '%'"></div>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>Record new reading</h3>
+            <form th:action="@{/resources/{id}/levels(id=${source.id})}" method="post">
+                <p><label>Current volume</label><input type="number" step="0.1" name="currentVolume" required> ML</p>
+                <p><label>Inflow</label><input type="number" step="0.1" name="inflowRate"> ML/day</p>
+                <p><label>Outflow</label><input type="number" step="0.1" name="outflowRate"> ML/day</p>
+                <p><button type="submit">Save</button></p>
+            </form>
+        </div>
+
+        <h2>Readings</h2>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Volume (ML)</th>
+                <th>Level</th>
+                <th>Inflow</th>
+                <th>Outflow</th>
+                <th>By</th>
+            </tr>
+            <tr th:each="r : ${readings}">
+                <td th:text="${r.readingTime}"></td>
+                <td th:text="${r.currentVolume}"></td>
+                <td th:text="${r.levelPercent} + '%'"></td>
+                <td th:text="${r.inflowRate}"></td>
+                <td th:text="${r.outflowRate}"></td>
+                <td th:text="${r.recordedBy}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

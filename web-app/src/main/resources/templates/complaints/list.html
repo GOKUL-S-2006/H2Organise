@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Complaints</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Complaints</h1>
+
+        <form action="/complaints" method="get">
+            Show:
+            <select name="status">
+                <option value="">all</option>
+                <option th:each="st : ${ {'REGISTERED','ASSIGNED','IN_PROGRESS','RESOLVED','REJECTED'} }"
+                        th:value="${st}" th:text="${st}" th:selected="${st == status}"></option>
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+        <br>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Zone</th>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Priority</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th>Update</th>
+            </tr>
+            <tr th:each="c : ${complaints}">
+                <td><a th:href="@{/complaints/{id}(id=${c.id})}" th:text="${c.id}"></a></td>
+                <td th:text="${c.zoneId}"></td>
+                <td th:text="${c.type}"></td>
+                <td th:text="${c.title}" th:title="${c.description}"></td>
+                <td th:text="${c.location}"></td>
+                <td th:text="${c.priority}" th:class="${c.priority}"></td>
+                <td th:text="${c.createdAt}"></td>
+                <td th:text="${c.status}" th:class="${c.status}"></td>
+                <td>
+                    <form th:action="@{/complaints/{id}/status(id=${c.id})}" method="post">
+                        <select name="status">
+                            <option>ASSIGNED</option>
+                            <option>IN_PROGRESS</option>
+                            <option>RESOLVED</option>
+                            <option>REJECTED</option>
+                        </select>
+                        <input type="text" name="assignedTo" placeholder="assign to" size="10">
+                        <input type="text" name="comment" placeholder="comment" size="12">
+                        <button type="submit">Save</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Water supply requests</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Citizen</th>
+                <th>Zone</th>
+                <th>Type</th>
+                <th>Litres</th>
+                <th>Needed on</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr th:each="r : ${requests}">
+                <td th:text="${r.id}"></td>
+                <td th:text="${r.citizenId}"></td>
+                <td th:text="${r.zoneId}"></td>
+                <td th:text="${r.requestType}"></td>
+                <td th:text="${r.quantityLitres}"></td>
+                <td th:text="${r.requiredDate}"></td>
+                <td th:text="${r.reason}"></td>
+                <td th:text="${r.status}"></td>
+                <td>
+                    <form th:action="@{/complaints/requests/{id}/status(id=${r.id})}" method="post">
+                        <select name="status">
+                            <option>SCHEDULED</option>
+                            <option>FULFILLED</option>
+                            <option>REJECTED</option>
+                        </select>
+                        <button type="submit">Save</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

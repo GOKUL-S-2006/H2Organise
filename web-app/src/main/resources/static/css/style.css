@@ -1,0 +1,232 @@
+body {
+    margin: 0;
+    background: #f4f6f9;
+    color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+a {
+    color: #1f5fa8;
+}
+
+h1, h2, h3 {
+    color: #1d3557;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 18px;
+    border-bottom: 1px solid #d0d7e2;
+    padding-bottom: 4px;
+    margin-top: 28px;
+}
+
+h3 {
+    font-size: 15px;
+    margin-top: 0;
+}
+
+/* top bar */
+.navbar {
+    background: #1d3557;
+    color: #fff;
+    padding: 12px 20px;
+    overflow: hidden;
+}
+
+.navbar .logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+}
+
+.navbar .right {
+    float: right;
+    margin-top: 4px;
+}
+
+.navbar .right a {
+    color: #cfe0f5;
+}
+
+/* sidebar + page */
+.wrapper {
+    display: flex;
+}
+
+.sidebar {
+    width: 180px;
+    min-height: 100vh;
+    background: #fff;
+    border-right: 1px solid #d0d7e2;
+    padding-top: 10px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px 18px;
+    color: #333;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    background: #e8eef7;
+    color: #1d3557;
+}
+
+.content {
+    flex: 1;
+    padding: 15px 30px;
+}
+
+/* tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+    background: #fff;
+}
+
+th, td {
+    border: 1px solid #d0d7e2;
+    padding: 7px 9px;
+    text-align: left;
+}
+
+th {
+    background: #e8eef7;
+    color: #1d3557;
+}
+
+tr:nth-child(even) {
+    background: #fafbfd;
+}
+
+/* forms */
+input, select, textarea {
+    border: 1px solid #b8c2d0;
+    padding: 5px;
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+button, .btn {
+    background: #1f5fa8;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+button:hover, .btn:hover {
+    background: #174a85;
+}
+
+.box {
+    background: #fff;
+    border: 1px solid #d0d7e2;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+}
+
+.box label {
+    display: inline-block;
+    width: 130px;
+}
+
+.box p {
+    margin: 6px 0;
+}
+
+.inline {
+    display: inline;
+}
+
+/* number cards on the dashboard */
+.cards {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #d0d7e2;
+    border-top: 3px solid #1f5fa8;
+    padding: 12px;
+    text-align: center;
+    color: #666;
+}
+
+.card .num {
+    font-size: 26px;
+    font-weight: bold;
+    color: #1d3557;
+}
+
+/* status colours, class name is the status itself */
+.CRITICAL, .NON_COMPLIANT, .FAULTY, .LEAKING, .FAILED, .DOWN, .HIGH {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+.WARNING, .REDUCED, .IN_PROGRESS, .UNDER_REPAIR, .ACTION_REQUIRED, .MEDIUM {
+    color: #d68910;
+    font-weight: bold;
+}
+
+.NORMAL, .COMPLIANT, .WORKING, .RESOLVED, .COMPLETED, .PASSED, .FULFILLED {
+    color: #1e8449;
+}
+
+/* level bar */
+.bar {
+    width: 300px;
+    height: 20px;
+    border: 1px solid #b8c2d0;
+    background: #e9edf2;
+}
+
+.bar .fill {
+    height: 100%;
+    background: #2e86c1;
+}
+
+.usage {
+    height: 14px;
+    background: #2e86c1;
+    display: inline-block;
+}
+
+.msg {
+    color: #1e8449;
+}
+
+.error {
+    color: #a93226;
+    border: 1px solid #e6b0aa;
+    padding: 8px;
+    background: #fdedec;
+}
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 50px;
+}
+
+.login-page .box {
+    width: 340px;
+}

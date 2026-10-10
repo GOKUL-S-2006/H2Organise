@@ -1,14 +1,17 @@
 package com.h2organise.quality.repository;
 
-import java.util.List;
-
+import com.h2organise.quality.entity.QualityTest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.h2organise.quality.model.QualityTest;
+import java.util.List;
+import java.util.Optional;
 
-public interface QualityTestRepository extends JpaRepository<QualityTest, Long> {
+public interface QualityTestRepository extends JpaRepository<QualityTest, Long>, JpaSpecificationExecutor<QualityTest> {
 
-    List<QualityTest> findByResult(String result);
+    List<QualityTest> findByZoneId(Long zoneId);
 
-    long countByResult(String result);
+    Optional<QualityTest> findFirstByOrderByTestDateDescIdDesc();
+
+    Optional<QualityTest> findFirstByZoneIdOrderByTestDateDescIdDesc(Long zoneId);
 }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>Dashboard</h1>
+
+        <div class="cards">
+            <div class="card"><div class="num" th:text="${openFaults}">0</div>open faults</div>
+            <div class="card"><div class="num" th:text="${pendingTasks}">0</div>pending repairs</div>
+            <div class="card"><div class="num" th:text="${newComplaints}">0</div>new complaints</div>
+            <div class="card"><div class="num" th:text="${pendingRequests}">0</div>water requests</div>
+            <div class="card"><div class="num" th:text="${compliance.compliancePercent} + '%'">0</div>quality compliance</div>
+        </div>
+
+        <h2>Zones</h2>
+        <table>
+            <tr>
+                <th>Zone</th>
+                <th>Population</th>
+                <th>Lowest level</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr th:each="z : ${zones}">
+                <td th:text="${z.name}"></td>
+                <td th:text="${z.population}"></td>
+                <td th:text="${z.lowestLevel != null} ? ${z.lowestLevel} + '%' : 'no reading'"></td>
+                <td th:text="${z.liveStatus}" th:class="${z.liveStatus}"></td>
+                <td><a th:href="@{/zones/{id}/status(id=${z.id})}" class="btn">Open</a></td>
+            </tr>
+        </table>
+
+        <h2>Sources below threshold</h2>
+        <p th:if="${#lists.isEmpty(lowSources)}">None right now.</p>
+        <table th:unless="${#lists.isEmpty(lowSources)}">
+            <tr>
+                <th>Source</th>
+                <th>Zone</th>
+                <th>Level</th>
+                <th>Threshold</th>
+            </tr>
+            <tr th:each="s : ${lowSources}">
+                <td th:text="${s.name}"></td>
+                <td th:text="${s.zoneId}"></td>
+                <td class="CRITICAL" th:text="${s.levelPercent} + '%'"></td>
+                <td th:text="${s.minThresholdPercent} + '%'"></td>
+            </tr>
+        </table>
+
+        <h2>Water usage by category (ML)</h2>
+        <table>
+            <tr th:each="u : ${usage}">
+                <td style="width:150px" th:text="${u.category}"></td>
+                <td>
+                    <span class="usage" th:style="'width:' + ${u.totalVolume * 6} + 'px'"></span>
+                    <span th:text="${u.totalVolume}"></span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

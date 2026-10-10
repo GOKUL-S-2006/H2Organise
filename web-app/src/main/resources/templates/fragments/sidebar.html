@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar" class="sidebar">
+    <th:block th:if="${user.role != 'CITIZEN'}">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/distribution">Distribution</a>
+        <a href="/quality">Water Quality</a>
+        <a href="/maintenance">Maintenance</a>
+    </th:block>
+    <th:block th:if="${user.role == 'ADMIN' or user.role == 'ENGINEER'}">
+        <a href="/resources">Water Sources</a>
+        <a href="/complaints">Complaints</a>
+    </th:block>
+    <th:block th:if="${user.role == 'CITIZEN'}">
+        <a href="/my/complaints">My Complaints</a>
+    </th:block>
+    <th:block th:if="${user.role == 'ADMIN'}">
+        <a href="/admin/users">Users</a>
+        <a href="/admin/reports">Reports</a>
+    </th:block>
+</div>
+</body>
+</html>

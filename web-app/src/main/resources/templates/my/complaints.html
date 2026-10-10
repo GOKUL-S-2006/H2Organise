@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>H2Organise - My Complaints</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="wrapper">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <div class="content">
+        <h1>My Complaints</h1>
+
+        <div class="box">
+            <h3>Report a leak or problem</h3>
+            <form action="/my/complaints" method="post">
+                <p><label>Type</label>
+                    <select name="type">
+                        <option>LEAKAGE</option>
+                        <option>LOW_PRESSURE</option>
+                        <option>QUALITY</option>
+                        <option>NO_SUPPLY</option>
+                        <option>OTHER</option>
+                    </select>
+                </p>
+                <p><label>Title</label><input type="text" name="title" required></p>
+                <p><label>Description</label><textarea name="description" rows="3" cols="40"></textarea></p>
+                <p><label>Location</label><input type="text" name="location"></p>
+                <p><label>Zone</label>
+                    <select name="zoneId">
+                        <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"
+                                th:selected="${z.id == user.zoneId}"></option>
+                    </select>
+                </p>
+                <p><label>Priority</label>
+                    <select name="priority">
+                        <option>LOW</option>
+                        <option selected>MEDIUM</option>
+                        <option>HIGH</option>
+                    </select>
+                </p>
+                <p><button type="submit">Submit</button></p>
+            </form>
+        </div>
+
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            <tr th:each="c : ${complaints}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.type}"></td>
+                <td th:text="${c.title}"></td>
+                <td th:text="${c.createdAt}"></td>
+                <td th:text="${c.status}" th:class="${c.status}"></td>
+                <td><a th:href="@{/my/complaints/{id}(id=${c.id})}">track</a></td>
+            </tr>
+        </table>
+
+        <div class="box">
+            <h3>Request water</h3>
+            <form action="/my/requests" method="post">
+                <p><label>Request</label>
+                    <select name="requestType">
+                        <option>TANKER</option>
+                        <option>EXTRA_SUPPLY</option>
+                        <option>NEW_CONNECTION</option>
+                    </select>
+                </p>
+                <p><label>Litres</label><input type="number" name="quantityLitres"></p>
+                <p><label>Needed on</label><input type="date" name="requiredDate"></p>
+                <p><label>Reason</label><input type="text" name="reason"></p>
+                <p><label>Zone</label>
+                    <select name="zoneId">
+                        <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"
+                                th:selected="${z.id == user.zoneId}"></option>
+                    </select>
+                </p>
+                <p><button type="submit">Send request</button></p>
+            </form>
+        </div>
+
+        <h2>My water requests</h2>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Litres</th>
+                <th>Needed on</th>
+                <th>Status</th>
+            </tr>
+            <tr th:each="r : ${requests}">
+                <td th:text="${r.id}"></td>
+                <td th:text="${r.requestType}"></td>
+                <td th:text="${r.quantityLitres}"></td>
+                <td th:text="${r.requiredDate}"></td>
+                <td th:text="${r.status}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

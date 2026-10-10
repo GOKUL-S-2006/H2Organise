@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resources</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f7fa;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 25px;
+            font-size: 20px;
+        }
+
+        .container {
+            width: 90%;
+            margin: 30px auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ecf0f1;
+        }
+
+        .low {
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .normal {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .view-button {
+            color: #2980b9;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    H2Organise
+</div>
+
+<div class="container">
+
+    <div class="top-section">
+        <h1>Water Resources</h1>
+
+        <a href="/resources/new" class="button">
+            Add Resource
+        </a>
+    </div>
+
+    <table>
+
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Zone</th>
+            <th>Capacity</th>
+            <th>Level (%)</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:each="resource : ${resources}">
+
+            <td th:text="${resource.id}"></td>
+
+            <td th:text="${resource.name}"></td>
+
+            <td th:text="${resource.type}"></td>
+
+            <td th:text="${resource.zone}"></td>
+
+            <td th:text="${resource.capacity} + ' ML'"></td>
+
+            <td th:text="${resource.level} + '%'"></td>
+
+            <td>
+                <span
+                        th:text="${resource.status}"
+                        th:class="${resource.status == 'LOW'} ? 'low' : 'normal'">
+                </span>
+            </td>
+
+            <td>
+                <a
+                        th:href="@{/resources/{id}(id=${resource.id})}"
+                        class="view-button">
+                    View
+                </a>
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-# AquaMonitor - Integrated Water & Natural Resource Management (Microservices)
+# H2Organise - Integrated Water & Natural Resource Management (Microservices)
 
 Seven independent Spring Boot 3.5 applications (Java 21), one PostgreSQL 18 database with one schema per service,
 REST between services, Thymeleaf web UI, JWT security.

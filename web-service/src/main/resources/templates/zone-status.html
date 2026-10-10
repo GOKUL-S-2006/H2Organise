@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>H2Organise | Zone Status</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1f2937;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 240px;
+            background: #0f3d56;
+            color: white;
+            padding: 25px 18px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 35px;
+        }
+
+        .logo span {
+            color: #5dd6c0;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            color: #9fb8c5;
+            margin: 20px 12px 10px;
+            text-transform: uppercase;
+        }
+
+        .menu a {
+            display: block;
+            text-decoration: none;
+            color: #dcebf1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1c5874;
+            color: white;
+        }
+
+        /* MAIN */
+
+        .main {
+            flex: 1;
+        }
+
+        .navbar {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .user {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 18px;
+            text-decoration: none;
+            color: #0f5965;
+            font-size: 14px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .page-heading p {
+            color: #64748b;
+        }
+
+        /* STATUS HEADER */
+
+        .status-header {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .zone-title h2 {
+            margin-bottom: 7px;
+        }
+
+        .zone-title p {
+            color: #64748b;
+        }
+
+        .status-badge {
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        /* GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+        }
+
+        /* WATER GAUGE */
+
+        .gauge-area {
+            text-align: center;
+        }
+
+        .gauge {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+            margin: 10px auto 20px;
+
+            background:
+                    conic-gradient(
+                            #dc2626 0deg 79.2deg,
+                            #edf2f7 79.2deg 360deg
+                    );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-inner {
+            width: 145px;
+            height: 145px;
+            border-radius: 50%;
+            background: white;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gauge-value {
+            font-size: 38px;
+            font-weight: bold;
+            color: #dc2626;
+        }
+
+        .gauge-label {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .threshold {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* DETAILS */
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 0;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #64748b;
+        }
+
+        .detail-value {
+            font-weight: bold;
+        }
+
+        .danger {
+            color: #dc2626;
+        }
+
+        .success {
+            color: #15946b;
+        }
+
+        .warning {
+            color: #d97706;
+        }
+
+        /* INFRASTRUCTURE */
+
+        .infra {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .infra-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .infra-icon {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .infra-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .infra-status {
+            font-size: 13px;
+        }
+
+        /* ACTIONS */
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #0f5965;
+            color: white;
+        }
+
+        .button.secondary {
+            background: #e8f5f5;
+            color: #0f5965;
+        }
+
+        @media (max-width: 900px) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 200px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            H2<span>Organise</span>
+        </div>
+
+        <div class="menu-title">Main</div>
+
+        <div class="menu">
+
+            <a href="/dashboard">
+                🏠 Dashboard
+            </a>
+
+            <a href="/zones/1/status" class="active">
+                💧 Zone Status
+            </a>
+
+            <a href="/resources">
+                🌊 Resources
+            </a>
+
+            <a href="/distribution">
+                🚰 Distribution
+            </a>
+
+            <a href="/quality">
+                🧪 Water Quality
+            </a>
+
+            <a href="/maintenance">
+                🔧 Maintenance
+            </a>
+
+            <a href="/complaints">
+                📋 Complaints
+            </a>
+
+        </div>
+
+        <div class="menu-title">Account</div>
+
+        <div class="menu">
+
+            <a href="/logout">
+                🚪 Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <nav class="navbar">
+
+            <h2>Zone Status</h2>
+
+            <div class="user">
+                Welcome,
+                <strong th:text="${username}">User</strong>
+            </div>
+
+        </nav>
+
+
+        <section class="content">
+
+            <a href="/dashboard" class="back">
+                ← Back to Dashboard
+            </a>
+
+
+            <!-- HEADING -->
+
+            <div class="page-heading">
+
+                <h1 th:text="${zoneName}">
+                    North Zone
+                </h1>
+
+                <p>
+                    Detailed water resource and infrastructure status
+                </p>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="status-header">
+
+                <div class="zone-title">
+
+                    <h2>
+                        Current Zone Status
+                    </h2>
+
+                    <p>
+                        Based on the lowest source water level
+                    </p>
+
+                </div>
+
+                <div class="status-badge"
+                     th:text="${status}">
+                    CRITICAL
+                </div>
+
+            </div>
+
+
+            <!-- TOP CARDS -->
+
+            <div class="grid">
+
+                <!-- WATER LEVEL -->
+
+                <div class="card">
+
+                    <h3>Water Level</h3>
+
+                    <div class="gauge-area">
+
+                        <div class="gauge">
+
+                            <div class="gauge-inner">
+
+                                <div class="gauge-value"
+                                     th:text="${level + '%'}">
+                                    22%
+                                </div>
+
+                                <div class="gauge-label">
+                                    Current Level
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="threshold">
+
+                            Minimum threshold:
+                            <strong th:text="${threshold + '%'}">
+                                30%
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SOURCE DETAILS -->
+
+                <div class="card">
+
+                    <h3>Primary Water Source</h3>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Source
+                        </span>
+
+                        <span class="detail-value"
+                              th:text="${sourceName}">
+                            Hemavathi Reservoir
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Total Capacity
+                        </span>
+
+                        <span class="detail-value"
+                              th:text="${capacity + ' ML'}">
+                            500 ML
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Current Volume
+                        </span>
+
+                        <span class="detail-value"
+                              th:text="${currentVolume + ' ML'}">
+                            110 ML
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Status
+                        </span>
+
+                        <span class="detail-value danger">
+                            LOW
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- INFRASTRUCTURE -->
+
+            <div class="card" style="margin-bottom:20px;">
+
+                <h3>Affected Infrastructure</h3>
+
+                <div class="infra">
+
+                    <div class="infra-card">
+
+                        <div class="infra-icon">
+                            🔧
+                        </div>
+
+                        <div class="infra-name"
+                             th:text="${pumpName}">
+                            Pump P-3
+                        </div>
+
+                        <div class="infra-status danger"
+                             th:text="${pumpStatus}">
+                            FAULTY
+                        </div>
+
+                    </div>
+
+
+                    <div class="infra-card">
+
+                        <div class="infra-icon">
+                            🚰
+                        </div>
+
+                        <div class="infra-name"
+                             th:text="${pipelineName}">
+                            North Main Line
+                        </div>
+
+                        <div class="infra-status danger"
+                             th:text="${pipelineStatus}">
+                            LEAKING
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOWER GRID -->
+
+            <div class="grid">
+
+                <!-- MAINTENANCE -->
+
+                <div class="card">
+
+                    <h3>Pending Maintenance</h3>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Open maintenance tasks
+                        </span>
+
+                        <span class="detail-value warning"
+                              th:text="${maintenanceCount}">
+                            1
+                        </span>
+
+                    </div>
+
+                    <p style="margin-top:15px; color:#64748b;">
+                        Pump P-3 motor replacement is pending.
+                    </p>
+
+                </div>
+
+
+                <!-- REQUESTS -->
+
+                <div class="card">
+
+                    <h3>Open Requests</h3>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Pending supply requests
+                        </span>
+
+                        <span class="detail-value warning"
+                              th:text="${requestCount}">
+                            1
+                        </span>
+
+                    </div>
+
+                    <p style="margin-top:15px; color:#64748b;">
+                        Tanker request requires attention.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUALITY + SCHEDULE -->
+
+            <div class="grid">
+
+                <div class="card">
+
+                    <h3>Latest Water Quality</h3>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Compliance
+                        </span>
+
+                        <span class="detail-value success"
+                              th:text="${qualityStatus}">
+                            COMPLIANT
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            pH
+                        </span>
+
+                        <span class="detail-value"
+                              th:text="${ph}">
+                            7.2
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h3>Next Supply Schedule</h3>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Time
+                        </span>
+
+                        <span class="detail-value"
+                              th:text="${nextSchedule}">
+                            18:00 - 20:00
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Planned Volume
+                        </span>
+
+                        <span class="detail-value"
+                              th:text="${plannedVolume + ' ML'}">
+                            12 ML
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="card" style="margin-top:20px;">
+
+                <h3>Actions</h3>
+
+                <div class="actions">
+
+                    <a href="/distribution"
+                       class="button">
+                        Manage Distribution
+                    </a>
+
+                    <a href="/maintenance"
+                       class="button secondary">
+                        View Maintenance
+                    </a>
+
+                    <a href="/quality"
+                       class="button secondary">
+                        View Quality
+                    </a>
+
+                    <a href="/complaints"
+                       class="button secondary">
+                        View Requests
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,473 @@
+{
+  "info": {
+    "name": "H2Organise quality-service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083"
+    }
+  ],
+  "item": [
+    {
+      "name": "Standards",
+      "item": [
+        {
+          "name": "List standards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/standards",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "standards"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Adjust pH range",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/standards",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "standards"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parameter\": \"PH\",\n  \"minValue\": 6.5,\n  \"maxValue\": 8.5\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tests",
+      "item": [
+        {
+          "name": "List tests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tests for North Zone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tests?zoneId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests"
+              ],
+              "query": [
+                {
+                  "key": "zoneId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Non-compliant tests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tests?status=NON_COMPLIANT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "NON_COMPLIANT"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Latest test for zone 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tests/latest?zoneId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests",
+                "latest"
+              ],
+              "query": [
+                {
+                  "key": "zoneId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get test 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tests/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create test (compliant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceId\": 1,\n  \"zoneId\": 1,\n  \"testDate\": \"2026-10-10\",\n  \"testedBy\": \"Lab Technician\",\n  \"ph\": 7.4,\n  \"turbidity\": 1.5,\n  \"chlorine\": 0.6,\n  \"tds\": 300,\n  \"bacteriaPresent\": false,\n  \"remarks\": \"Routine test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create test (pH too high -> NON_COMPLIANT)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceId\": 1,\n  \"zoneId\": 1,\n  \"testDate\": \"2026-10-10\",\n  \"testedBy\": \"Lab Technician\",\n  \"ph\": 9.2,\n  \"turbidity\": 1.5,\n  \"chlorine\": 0.6,\n  \"tds\": 300,\n  \"bacteriaPresent\": false,\n  \"remarks\": \"pH too high\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update test 1",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceId\": 1,\n  \"zoneId\": 1,\n  \"testDate\": \"2026-10-10\",\n  \"testedBy\": \"Lab Technician\",\n  \"ph\": 7.4,\n  \"turbidity\": 1.5,\n  \"chlorine\": 0.6,\n  \"tds\": 300,\n  \"bacteriaPresent\": false,\n  \"remarks\": \"Routine test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete test 2",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/tests/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests",
+                "2"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Validation error (missing zoneId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tests"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testDate\": \"2026-10-10\",\n  \"ph\": 7\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspections",
+      "item": [
+        {
+          "name": "List inspections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inspections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Failed inspections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inspections?result=FAILED",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections"
+              ],
+              "query": [
+                {
+                  "key": "result",
+                  "value": "FAILED"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Inspections due (30 days)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inspections/due",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections",
+                "due"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get inspection 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inspections/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create inspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/inspections",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceId\": 1,\n  \"zoneId\": 1,\n  \"inspectionDate\": \"2026-10-10\",\n  \"inspectorName\": \"Ravi Kumar\",\n  \"result\": \"ACTION_REQUIRED\",\n  \"remarks\": \"Sampling tap leaking\",\n  \"nextDueDate\": \"2026-10-20\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update inspection 1",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/inspections/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceId\": 1,\n  \"zoneId\": 1,\n  \"inspectionDate\": \"2026-10-10\",\n  \"inspectorName\": \"Ravi Kumar\",\n  \"result\": \"ACTION_REQUIRED\",\n  \"remarks\": \"Sampling tap leaking\",\n  \"nextDueDate\": \"2026-10-20\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete inspection 2",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inspections/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inspections",
+                "2"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compliance",
+      "item": [
+        {
+          "name": "Overall summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/compliance/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "compliance",
+                "summary"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Summary for zone 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/compliance/summary?zoneId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "compliance",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "zoneId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

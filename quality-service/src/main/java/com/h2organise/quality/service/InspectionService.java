@@ -1,107 +1,107 @@
 package com.h2organise.quality.service;
 
-import com.h2organise.quality.dto.InspectionRequest;
-import com.h2organise.quality.dto.InspectionResponse;
-import com.h2organise.quality.entity.Inspection;
-import com.h2organise.quality.entity.Inspection.Result;
-import com.h2organise.quality.exception.BadRequestException;
-import com.h2organise.quality.exception.ResourceNotFoundException;
-import com.h2organise.quality.repository.InspectionRepository;
-import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.h2organise.quality.dto.InspectionRequest;
+import com.h2organise.quality.dto.InspectionResponse;
+import com.h2organise.quality.entity.Inspection;
+import com.h2organise.quality.entity.InspectionResult;
+import com.h2organise.quality.exception.ResourceNotFoundException;
+import com.h2organise.quality.repository.InspectionRepository;
+
 @Service
-@RequiredArgsConstructor
 public class InspectionService {
 
-    /** "Due" means the next due date is within this many days from today. */
-    static final int DUE_WITHIN_DAYS = 30;
+    private static final int DUE_WITHIN_DAYS = 30;
 
-    private final InspectionRepository repository;
+    private final InspectionRepository inspectionRepository;
 
-    @Transactional(readOnly = true)
-    public List<InspectionResponse> list(Long zoneId, Result result) {
-        Specification<Inspection> filter = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (zoneId != null) {
-                predicates.add(cb.equal(root.get("zoneId"), zoneId));
-            }
-            if (result != null) {
-                predicates.add(cb.equal(root.get("result"), result));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-        Sort sort = Sort.by(Sort.Direction.DESC, "inspectionDate").and(Sort.by(Sort.Direction.DESC, "id"));
-        return repository.findAll(filter, sort).stream().map(InspectionResponse::from).toList();
-    }
-
-    /**
-     * Inspections whose next due date is today or earlier (overdue) or within the next 30 days.
-     * Soonest first. Optional zone filter.
-     */
-    @Transactional(readOnly = true)
-    public List<InspectionResponse> due(Long zoneId) {
-        LocalDate limit = LocalDate.now().plusDays(DUE_WITHIN_DAYS);
-        Specification<Inspection> filter = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.isNotNull(root.get("nextDueDate")));
-            predicates.add(cb.lessThanOrEqualTo(root.<LocalDate>get("nextDueDate"), limit));
-            if (zoneId != null) {
-                predicates.add(cb.equal(root.get("zoneId"), zoneId));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-        Sort sort = Sort.by(Sort.Direction.ASC, "nextDueDate").and(Sort.by(Sort.Direction.ASC, "id"));
-        return repository.findAll(filter, sort).stream().map(InspectionResponse::from).toList();
+    public InspectionService(InspectionRepository inspectionRepository) {
+        this.inspectionRepository = inspectionRepository;
     }
 
     @Transactional(readOnly = true)
-    public InspectionResponse getById(Long id) {
-        return InspectionResponse.from(find(id));
+    public List<InspectionResponse> getInspections(Long zoneId, InspectionResult result) {
+        Inspection probe = new Inspection();
+        probe.setZoneId(zoneId);
+        probe.setResult(result);
+        return toResponses(inspectionRepository.findAll(Example.of(probe), Sort.by("id")));
+    }
+
+    // Inspections whose next due date falls within the next 30 days (today included)
+    @Transactional(readOnly = true)
+    public List<InspectionResponse> getDueInspections() {
+        LocalDate today = LocalDate.now();
+        LocalDate limit = today.plusDays(DUE_WITHIN_DAYS);
+        return toResponses(inspectionRepository.findByNextDueDateBetweenOrderByNextDueDateAsc(today, limit));
+    }
+
+    @Transactional(readOnly = true)
+    public InspectionResponse getInspection(Long id) {
+        return toResponse(findInspection(id));
     }
 
     @Transactional
-    public InspectionResponse create(InspectionRequest request) {
+    public InspectionResponse createInspection(InspectionRequest request) {
         Inspection inspection = new Inspection();
-        apply(inspection, request);
-        return InspectionResponse.from(repository.save(inspection));
+        copyDetails(request, inspection);
+        return toResponse(inspectionRepository.save(inspection));
     }
 
     @Transactional
-    public InspectionResponse update(Long id, InspectionRequest request) {
-        Inspection inspection = find(id);
-        apply(inspection, request);
-        return InspectionResponse.from(repository.save(inspection));
+    public InspectionResponse updateInspection(Long id, InspectionRequest request) {
+        Inspection inspection = findInspection(id);
+        copyDetails(request, inspection);
+        return toResponse(inspectionRepository.save(inspection));
     }
 
     @Transactional
-    public void delete(Long id) {
-        repository.delete(find(id));
+    public void deleteInspection(Long id) {
+        inspectionRepository.delete(findInspection(id));
     }
 
-    private Inspection find(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inspection " + id + " not found"));
+    // ---------- helpers ----------
+
+    private Inspection findInspection(Long id) {
+        return inspectionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Inspection not found with id " + id));
     }
 
-    private void apply(Inspection inspection, InspectionRequest r) {
-        if (r.nextDueDate() != null && r.nextDueDate().isBefore(r.inspectionDate())) {
-            throw new BadRequestException("nextDueDate cannot be before inspectionDate");
+    private void copyDetails(InspectionRequest request, Inspection inspection) {
+        inspection.setSourceId(request.getSourceId());
+        inspection.setZoneId(request.getZoneId());
+        inspection.setInspectionDate(request.getInspectionDate());
+        inspection.setInspectorName(request.getInspectorName());
+        inspection.setResult(request.getResult());
+        inspection.setRemarks(request.getRemarks());
+        inspection.setNextDueDate(request.getNextDueDate());
+    }
+
+    private List<InspectionResponse> toResponses(List<Inspection> inspections) {
+        List<InspectionResponse> responses = new ArrayList<>();
+        for (Inspection inspection : inspections) {
+            responses.add(toResponse(inspection));
         }
-        inspection.setSourceId(r.sourceId());
-        inspection.setZoneId(r.zoneId());
-        inspection.setInspectionDate(r.inspectionDate());
-        inspection.setInspectorName(r.inspectorName());
-        inspection.setResult(r.result());
-        inspection.setRemarks(r.remarks());
-        inspection.setNextDueDate(r.nextDueDate());
+        return responses;
+    }
+
+    private InspectionResponse toResponse(Inspection inspection) {
+        InspectionResponse response = new InspectionResponse();
+        response.setId(inspection.getId());
+        response.setSourceId(inspection.getSourceId());
+        response.setZoneId(inspection.getZoneId());
+        response.setInspectionDate(inspection.getInspectionDate());
+        response.setInspectorName(inspection.getInspectorName());
+        response.setResult(inspection.getResult());
+        response.setRemarks(inspection.getRemarks());
+        response.setNextDueDate(inspection.getNextDueDate());
+        return response;
     }
 }

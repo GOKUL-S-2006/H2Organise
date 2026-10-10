@@ -1,27 +1,28 @@
 package com.h2organise.quality.dto;
 
-import com.h2organise.quality.entity.QualityTest;
-import com.h2organise.quality.entity.QualityTest.ComplianceStatus;
-
 import java.time.LocalDate;
 
-public record QualityTestResponse(
-        Long id,
-        Long sourceId,
-        Long zoneId,
-        LocalDate testDate,
-        String testedBy,
-        Double ph,
-        Double turbidity,
-        Double chlorine,
-        Double tds,
-        Boolean bacteriaPresent,
-        ComplianceStatus complianceStatus,
-        String remarks) {
+import com.h2organise.quality.entity.ComplianceStatus;
 
-    public static QualityTestResponse from(QualityTest t) {
-        return new QualityTestResponse(t.getId(), t.getSourceId(), t.getZoneId(), t.getTestDate(),
-                t.getTestedBy(), t.getPh(), t.getTurbidity(), t.getChlorine(), t.getTds(),
-                t.getBacteriaPresent(), t.getComplianceStatus(), t.getRemarks());
-    }
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class QualityTestResponse {
+
+    private Long id;
+    private Long sourceId;
+    private Long zoneId;
+    private LocalDate testDate;
+    private String testedBy;
+    private Double ph;
+    private Double turbidity;
+    private Double chlorine;
+    private Double tds;
+    private Boolean bacteriaPresent;
+    private ComplianceStatus complianceStatus;
+    private String remarks;
 }

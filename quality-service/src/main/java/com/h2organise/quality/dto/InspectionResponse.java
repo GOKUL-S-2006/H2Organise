@@ -1,22 +1,24 @@
 package com.h2organise.quality.dto;
 
-import com.h2organise.quality.entity.Inspection;
-import com.h2organise.quality.entity.Inspection.Result;
-
 import java.time.LocalDate;
 
-public record InspectionResponse(
-        Long id,
-        Long sourceId,
-        Long zoneId,
-        LocalDate inspectionDate,
-        String inspectorName,
-        Result result,
-        String remarks,
-        LocalDate nextDueDate) {
+import com.h2organise.quality.entity.InspectionResult;
 
-    public static InspectionResponse from(Inspection i) {
-        return new InspectionResponse(i.getId(), i.getSourceId(), i.getZoneId(), i.getInspectionDate(),
-                i.getInspectorName(), i.getResult(), i.getRemarks(), i.getNextDueDate());
-    }
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class InspectionResponse {
+
+    private Long id;
+    private Long sourceId;
+    private Long zoneId;
+    private LocalDate inspectionDate;
+    private String inspectorName;
+    private InspectionResult result;
+    private String remarks;
+    private LocalDate nextDueDate;
 }

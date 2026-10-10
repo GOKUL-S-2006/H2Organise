@@ -1,10 +1,18 @@
 package com.h2organise.quality.dto;
 
-/** compliancePercent is a plain number: 80.0 means 80 percent. It is 0.0 when there are no tests yet. */
-public record ComplianceSummaryResponse(
-        Long zoneId,
-        long totalTests,
-        long compliantTests,
-        long nonCompliantTests,
-        double compliancePercent) {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+// Result of GET /compliance/summary. zoneId is null for the overall summary.
+@Getter
+@Setter
+@NoArgsConstructor
+public class ComplianceSummaryResponse {
+
+    private Long zoneId;
+    private long totalTests;
+    private long compliantTests;
+    private long nonCompliantTests;
+    private double compliancePercent;
 }

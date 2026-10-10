@@ -1,114 +1,180 @@
 package com.h2organise.quality.service;
 
-import com.h2organise.quality.dto.QualityTestRequest;
-import com.h2organise.quality.dto.QualityTestResponse;
-import com.h2organise.quality.entity.QualityTest;
-import com.h2organise.quality.entity.QualityTest.ComplianceStatus;
-import com.h2organise.quality.exception.BadRequestException;
-import com.h2organise.quality.exception.ResourceNotFoundException;
-import com.h2organise.quality.repository.QualityTestRepository;
-import jakarta.persistence.criteria.Predicate;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.h2organise.quality.dto.ComplianceSummaryResponse;
+import com.h2organise.quality.dto.QualityTestRequest;
+import com.h2organise.quality.dto.QualityTestResponse;
+import com.h2organise.quality.entity.ComplianceStatus;
+import com.h2organise.quality.entity.QualityStandard;
+import com.h2organise.quality.entity.QualityTest;
+import com.h2organise.quality.exception.ResourceNotFoundException;
+import com.h2organise.quality.repository.QualityStandardRepository;
+import com.h2organise.quality.repository.QualityTestRepository;
+
 @Service
-@RequiredArgsConstructor
 public class QualityTestService {
 
-    private static final Sort NEWEST_FIRST =
-            Sort.by(Sort.Direction.DESC, "testDate").and(Sort.by(Sort.Direction.DESC, "id"));
+    private final QualityTestRepository testRepository;
+    private final QualityStandardRepository standardRepository;
 
-    private final QualityTestRepository repository;
-    private final ComplianceEvaluator evaluator;
+    public QualityTestService(QualityTestRepository testRepository, QualityStandardRepository standardRepository) {
+        this.testRepository = testRepository;
+        this.standardRepository = standardRepository;
+    }
 
+    // Every filter is optional. Filters that are given are combined with AND.
     @Transactional(readOnly = true)
-    public List<QualityTestResponse> list(Long zoneId, Long sourceId, ComplianceStatus status) {
-        Specification<QualityTest> filter = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (zoneId != null) {
-                predicates.add(cb.equal(root.get("zoneId"), zoneId));
-            }
-            if (sourceId != null) {
-                predicates.add(cb.equal(root.get("sourceId"), sourceId));
-            }
-            if (status != null) {
-                predicates.add(cb.equal(root.get("complianceStatus"), status));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-        return repository.findAll(filter, NEWEST_FIRST).stream().map(QualityTestResponse::from).toList();
+    public List<QualityTestResponse> getTests(Long zoneId, Long sourceId, ComplianceStatus status) {
+        QualityTest probe = new QualityTest();
+        probe.setZoneId(zoneId);
+        probe.setSourceId(sourceId);
+        probe.setComplianceStatus(status);
+
+        List<QualityTestResponse> responses = new ArrayList<>();
+        for (QualityTest test : testRepository.findAll(Example.of(probe), Sort.by("id"))) {
+            responses.add(toResponse(test));
+        }
+        return responses;
     }
 
     @Transactional(readOnly = true)
-    public QualityTestResponse getById(Long id) {
-        return QualityTestResponse.from(find(id));
+    public QualityTestResponse getTest(Long id) {
+        return toResponse(findTest(id));
     }
 
-    /** Latest test overall, or for one zone when zoneId is given. 404 when there is none yet. */
+    // Latest test overall, or for one zone when zoneId is given
     @Transactional(readOnly = true)
-    public QualityTestResponse latest(Long zoneId) {
-        return (zoneId == null
-                ? repository.findFirstByOrderByTestDateDescIdDesc()
-                : repository.findFirstByZoneIdOrderByTestDateDescIdDesc(zoneId))
-                .map(QualityTestResponse::from)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        zoneId == null ? "No quality tests found" : "No quality tests found for zone " + zoneId));
+    public QualityTestResponse getLatestTest(Long zoneId) {
+        QualityTest latest;
+        if (zoneId == null) {
+            latest = testRepository.findFirstByOrderByTestDateDescIdDesc()
+                    .orElseThrow(() -> new ResourceNotFoundException("No quality tests recorded yet"));
+        } else {
+            latest = testRepository.findFirstByZoneIdOrderByTestDateDescIdDesc(zoneId)
+                    .orElseThrow(() -> new ResourceNotFoundException("No quality tests found for zone " + zoneId));
+        }
+        return toResponse(latest);
     }
 
     @Transactional
-    public QualityTestResponse create(QualityTestRequest request) {
+    public QualityTestResponse createTest(QualityTestRequest request) {
         QualityTest test = new QualityTest();
-        applyAndEvaluate(test, request);
-        return QualityTestResponse.from(repository.save(test));
+        copyDetails(request, test);
+        test.setComplianceStatus(checkCompliance(test));
+        return toResponse(testRepository.save(test));
     }
 
     @Transactional
-    public QualityTestResponse update(Long id, QualityTestRequest request) {
-        QualityTest test = find(id);
-        applyAndEvaluate(test, request);
-        return QualityTestResponse.from(repository.save(test));
+    public QualityTestResponse updateTest(Long id, QualityTestRequest request) {
+        QualityTest test = findTest(id);
+        copyDetails(request, test);
+        test.setComplianceStatus(checkCompliance(test)); // values may have changed, so check again
+        return toResponse(testRepository.save(test));
     }
 
     @Transactional
-    public void delete(Long id) {
-        repository.delete(find(id));
+    public void deleteTest(Long id) {
+        testRepository.delete(findTest(id));
     }
 
-    private QualityTest find(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Quality test " + id + " not found"));
+    @Transactional(readOnly = true)
+    public ComplianceSummaryResponse getComplianceSummary(Long zoneId) {
+        long total;
+        long compliant;
+        if (zoneId == null) {
+            total = testRepository.count();
+            compliant = testRepository.countByComplianceStatus(ComplianceStatus.COMPLIANT);
+        } else {
+            total = testRepository.countByZoneId(zoneId);
+            compliant = testRepository.countByZoneIdAndComplianceStatus(zoneId, ComplianceStatus.COMPLIANT);
+        }
+
+        ComplianceSummaryResponse summary = new ComplianceSummaryResponse();
+        summary.setZoneId(zoneId);
+        summary.setTotalTests(total);
+        summary.setCompliantTests(compliant);
+        summary.setNonCompliantTests(total - compliant);
+        if (total > 0) {
+            // round to 1 decimal place, e.g. 66.7
+            summary.setCompliancePercent(Math.round(compliant * 1000.0 / total) / 10.0);
+        }
+        return summary;
     }
 
-    private void applyAndEvaluate(QualityTest test, QualityTestRequest r) {
-        if (r.ph() == null && r.turbidity() == null && r.chlorine() == null
-                && r.tds() == null && r.bacteriaPresent() == null) {
-            throw new BadRequestException(
-                    "Provide at least one measurement: ph, turbidity, chlorine, tds or bacteriaPresent");
+    // A test is NON_COMPLIANT if bacteria are present or any measured value is outside its standard.
+    // Values that were not measured (null) are skipped.
+    public ComplianceStatus checkCompliance(QualityTest test) {
+        if (Boolean.TRUE.equals(test.getBacteriaPresent())) {
+            return ComplianceStatus.NON_COMPLIANT;
         }
-        test.setSourceId(r.sourceId());
-        test.setZoneId(r.zoneId());
-        test.setTestDate(r.testDate());
-        test.setTestedBy(r.testedBy());
-        test.setPh(r.ph());
-        test.setTurbidity(r.turbidity());
-        test.setChlorine(r.chlorine());
-        test.setTds(r.tds());
-        test.setBacteriaPresent(Boolean.TRUE.equals(r.bacteriaPresent()));
-        test.setRemarks(r.remarks());
+        for (QualityStandard standard : standardRepository.findAll()) {
+            Double value = getValue(test, standard);
+            if (value == null) {
+                continue;
+            }
+            if (value < standard.getMinValue() || value > standard.getMaxValue()) {
+                return ComplianceStatus.NON_COMPLIANT;
+            }
+        }
+        return ComplianceStatus.COMPLIANT;
+    }
 
-        // The client never sends this field. The service always decides it.
-        List<String> problems = evaluator.violations(test);
-        test.setComplianceStatus(problems.isEmpty() ? ComplianceStatus.COMPLIANT : ComplianceStatus.NON_COMPLIANT);
-        if (!problems.isEmpty()) {
-            log.info("Test for zone {} is NON_COMPLIANT: {}", r.zoneId(), String.join("; ", problems));
+    // ---------- helpers ----------
+
+    private Double getValue(QualityTest test, QualityStandard standard) {
+        switch (standard.getParameter()) {
+            case PH:
+                return test.getPh();
+            case TURBIDITY:
+                return test.getTurbidity();
+            case CHLORINE:
+                return test.getChlorine();
+            case TDS:
+                return test.getTds();
+            default:
+                return null;
         }
+    }
+
+    private QualityTest findTest(Long id) {
+        return testRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Quality test not found with id " + id));
+    }
+
+    private void copyDetails(QualityTestRequest request, QualityTest test) {
+        test.setSourceId(request.getSourceId());
+        test.setZoneId(request.getZoneId());
+        test.setTestDate(request.getTestDate());
+        test.setTestedBy(request.getTestedBy());
+        test.setPh(request.getPh());
+        test.setTurbidity(request.getTurbidity());
+        test.setChlorine(request.getChlorine());
+        test.setTds(request.getTds());
+        test.setBacteriaPresent(request.getBacteriaPresent());
+        test.setRemarks(request.getRemarks());
+    }
+
+    private QualityTestResponse toResponse(QualityTest test) {
+        QualityTestResponse response = new QualityTestResponse();
+        response.setId(test.getId());
+        response.setSourceId(test.getSourceId());
+        response.setZoneId(test.getZoneId());
+        response.setTestDate(test.getTestDate());
+        response.setTestedBy(test.getTestedBy());
+        response.setPh(test.getPh());
+        response.setTurbidity(test.getTurbidity());
+        response.setChlorine(test.getChlorine());
+        response.setTds(test.getTds());
+        response.setBacteriaPresent(test.getBacteriaPresent());
+        response.setComplianceStatus(test.getComplianceStatus());
+        response.setRemarks(test.getRemarks());
+        return response;
     }
 }

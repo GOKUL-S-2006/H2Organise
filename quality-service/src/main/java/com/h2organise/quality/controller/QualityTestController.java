@@ -1,55 +1,72 @@
 package com.h2organise.quality.controller;
 
-import com.h2organise.quality.dto.QualityTestRequest;
-import com.h2organise.quality.dto.QualityTestResponse;
-import com.h2organise.quality.entity.QualityTest.ComplianceStatus;
-import com.h2organise.quality.service.QualityTestService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.h2organise.quality.dto.ComplianceSummaryResponse;
+import com.h2organise.quality.dto.QualityTestRequest;
+import com.h2organise.quality.dto.QualityTestResponse;
+import com.h2organise.quality.entity.ComplianceStatus;
+import com.h2organise.quality.service.QualityTestService;
+
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/tests")
-@RequiredArgsConstructor
 public class QualityTestController {
 
-    private final QualityTestService service;
+    private final QualityTestService testService;
 
-    @GetMapping
-    public List<QualityTestResponse> list(@RequestParam(required = false) Long zoneId,
-                                          @RequestParam(required = false) Long sourceId,
-                                          @RequestParam(required = false) ComplianceStatus status) {
-        return service.list(zoneId, sourceId, status);
+    public QualityTestController(QualityTestService testService) {
+        this.testService = testService;
     }
 
-    /** "latest" is a fixed word, so Spring prefers it over the /{id} pattern. */
-    @GetMapping("/latest")
-    public QualityTestResponse latest(@RequestParam(required = false) Long zoneId) {
-        return service.latest(zoneId);
+    // GET /tests?zoneId=1&sourceId=1&status=COMPLIANT (all optional)
+    @GetMapping("/tests")
+    public List<QualityTestResponse> getTests(@RequestParam(required = false) Long zoneId,
+                                              @RequestParam(required = false) Long sourceId,
+                                              @RequestParam(required = false) ComplianceStatus status) {
+        return testService.getTests(zoneId, sourceId, status);
     }
 
-    @GetMapping("/{id}")
-    public QualityTestResponse getById(@PathVariable Long id) {
-        return service.getById(id);
+    @GetMapping("/tests/latest")
+    public QualityTestResponse getLatestTest(@RequestParam(required = false) Long zoneId) {
+        return testService.getLatestTest(zoneId);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public QualityTestResponse create(@Valid @RequestBody QualityTestRequest request) {
-        return service.create(request);
+    @GetMapping("/tests/{id}")
+    public QualityTestResponse getTest(@PathVariable Long id) {
+        return testService.getTest(id);
     }
 
-    @PutMapping("/{id}")
-    public QualityTestResponse update(@PathVariable Long id, @Valid @RequestBody QualityTestRequest request) {
-        return service.update(id, request);
+    @PostMapping("/tests")
+    public ResponseEntity<QualityTestResponse> createTest(@Valid @RequestBody QualityTestRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(testService.createTest(request));
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    @PutMapping("/tests/{id}")
+    public QualityTestResponse updateTest(@PathVariable Long id, @Valid @RequestBody QualityTestRequest request) {
+        return testService.updateTest(id, request);
+    }
+
+    @DeleteMapping("/tests/{id}")
+    public ResponseEntity<Void> deleteTest(@PathVariable Long id) {
+        testService.deleteTest(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // GET /compliance/summary or /compliance/summary?zoneId=1
+    @GetMapping("/compliance/summary")
+    public ComplianceSummaryResponse getComplianceSummary(@RequestParam(required = false) Long zoneId) {
+        return testService.getComplianceSummary(zoneId);
     }
 }

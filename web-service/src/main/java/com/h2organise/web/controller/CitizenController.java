@@ -10,6 +10,7 @@ public class CitizenController {
     public String dashboard() {
         return "citizen/dashboard";
     }
+
     @GetMapping("/my/zone-status")
     public String zoneStatus() {
         return "citizen/zone-status";
@@ -18,5 +19,10 @@ public class CitizenController {
     @GetMapping("/my/complaints")
     public String complaints() {
         return "citizen/complaints";
+    }
+
+    @GetMapping("/my/requests")
+    public String requests() {
+        return "citizen/requests";
     }
 }
